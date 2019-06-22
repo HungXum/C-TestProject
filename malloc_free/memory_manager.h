@@ -11,9 +11,13 @@ void pre_chunk_data(void* mem);
 void next_chunk_data(void* mem);
 void malloc_memory()
 {
-    int *p = (int*)malloc(24);
-    memset(p, 0x01, 20); //编译并没有报错，但是windows中malloc和memset空间不一样会运行错误，即使开辟了1个字节空间，但是可以memset后面很多空间，但是到了一定的大小时，free会出错(核心已转移)
+    int *p = (int*)malloc(20);
+    memset(p, 0x01, 24); //编译并没有报错，但是windows中malloc和memset空间不一样会运行错误，即使开辟了1个字节空间，但是可以memset后面很多空间，但是到了一定的大小时，free会出错(核心已转移)
     printf("p = %#x\n", p);
+
+    int *p1 = (int*)malloc(0);
+    memset(p, 0x02, 24);
+    printf("p1 = %#x\n", p1);
 
     size_t size = malloc_usable_size(p);//该函数回返回指针p指向的能用的内存，但是由于对齐或者最小size的原因，返回的值可能比开的空间大，空间能用，但是是不好的编程习惯，最好不要越界使用
     printf("%zu\n", size);
@@ -25,16 +29,17 @@ void malloc_memory()
 
 
     //尝试去理解是否malloc指针指向的前两个字节保存关于size的信息，结果是当大于size <= 24, pSize[0] = 0x21; size > 24时，以16递增，故不知道？？？？
-    int* pSize = (int*)(pCh - 8);
-    printf("pSize[0] = %#x\n", *(pSize + 0));
-    printf("pSize[1] = %#x\n", *(pSize + 1));
+    // int* pSize = (int*)(pCh - 8);
+    // printf("pSize[0] = %#x\n", *(pSize + 0));
+    // printf("pSize[1] = %#x\n", *(pSize + 1));
 
     int *p2 = (int*)malloc(3);
     memset(p2, 0x03, 3);
     printf("p2 = %#x\n", p2);
 
     free(p);
-    free(p2);
+    free(p1);
+    // free(p2);
 }
 
 typedef size_t SIZE_SZ;
@@ -88,8 +93,8 @@ void malloc_mem_control_block()
     printf("curBrk = %#x\n", curBrk);
 
     printf("-----------------------------\n");
-    void* ptr1 = malloc(24);
-    memset(ptr1, 0x01, 24);
+    void* ptr1 = malloc(20);
+    memset(ptr1, 0x01, 20);
     printf("ptr1 = %#x\n", ptr1);
     printf("ptr1 malloc_usable_size = %zu\n", malloc_usable_size(ptr1));
     cur_chunk_data(ptr1);
@@ -110,6 +115,7 @@ void malloc_mem_control_block()
     printf("ptr2 = %#x\n", ptr2);
     printf("ptr2 malloc_usable_size = %zu\n", malloc_usable_size(ptr2));
     cur_chunk_data(ptr2);
+    printAddrData1Byte(ptr1, ptr2);
     printf("-----------------------------\n");
 
     void* ptr3 = malloc(121);
@@ -127,8 +133,8 @@ void malloc_mem_control_block()
     printf("-----------------------------\n");
 
     // 第一个curBrk和最后的curBrk相差0x21000, 33 * 4KB,则malloc申请内存时,系统会一次行映射33个内存页
-    // curBrk = sbrk(0);
-    // printf("curBrk = %#x\n", curBrk);
+    curBrk = sbrk(0);
+    printf("curBrk = %#x\n", curBrk);
 
     free(ptr1);
     free(ptr2);
@@ -138,10 +144,10 @@ void malloc_mem_control_block()
 
     //进程结束后,页表被删除了,即被映射的虚拟内存和物理内存的关系不存在了,所有的资源也被回收了,内存泄露的问题也就不存在了,所以内存泄露最大的担心点是出现在长时间运行程序,比如守护进程,服务等.
 
-    printf("-------------------free----------------\n");
-    cur_chunk_data(ptr1);
-    cur_chunk_data(ptr2);
-    cur_chunk_data(ptr3);
+    // printf("-------------------free----------------\n");
+    // cur_chunk_data(ptr1);
+    // cur_chunk_data(ptr2);
+    // cur_chunk_data(ptr3);
 }
 
 void printAddrData1Byte(void* startAddr, void* endAddr)
@@ -176,7 +182,7 @@ void pre_chunk_data(void* mem)
 {
     mchunkptr pchunk = mem2chunk(mem);
     //If prev_inuse is set for any given chunk, then you CANNOT determine the size of the previous chunk, and might even get a memory addressing fault when trying to do so.
-    //那官方的malloc_block结构的各个字段什么时候发挥作用呢???
+    //那官方的malloc_block结构的各个字段什么时候发挥作用呢???(在free之后空闲链表中发挥作用)
     mchunkptr prechunk = pre_chunk(pchunk);
     printf("prechunk = %#x, prechunk->size = %zu\n", prechunk, chunksize(prechunk));
 }
