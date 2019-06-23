@@ -13,11 +13,11 @@ void malloc_memory()
 {
     int *p = (int*)malloc(20);
     memset(p, 0x01, 24); //编译并没有报错，但是windows中malloc和memset空间不一样会运行错误，即使开辟了1个字节空间，但是可以memset后面很多空间，但是到了一定的大小时，free会出错(核心已转移)
-    printf("p = %#x\n", p);
+    printf("p = %p\n", p);
 
     int *p1 = (int*)malloc(0);
     memset(p, 0x02, 24);
-    printf("p1 = %#x\n", p1);
+    printf("p1 = %p\n", p1);
 
     size_t size = malloc_usable_size(p);//该函数回返回指针p指向的能用的内存，但是由于对齐或者最小size的原因，返回的值可能比开的空间大，空间能用，但是是不好的编程习惯，最好不要越界使用
     printf("%zu\n", size);
@@ -30,12 +30,12 @@ void malloc_memory()
 
     //尝试去理解是否malloc指针指向的前两个字节保存关于size的信息，结果是当大于size <= 24, pSize[0] = 0x21; size > 24时，以16递增，故不知道？？？？
     // int* pSize = (int*)(pCh - 8);
-    // printf("pSize[0] = %#x\n", *(pSize + 0));
-    // printf("pSize[1] = %#x\n", *(pSize + 1));
+    // printf("pSize[0] = %p\n", *(pSize + 0));
+    // printf("pSize[1] = %p\n", *(pSize + 1));
 
     int *p2 = (int*)malloc(3);
     memset(p2, 0x03, 3);
-    printf("p2 = %#x\n", p2);
+    printf("p2 = %p\n", p2);
 
     free(p);
     free(p1);
@@ -78,24 +78,24 @@ typedef struct malloc_block* mchunkptr;
 #define MINSIZE  \
     (unsigned long)(((MIN_CHUNK_SIZE+MALLOC_ALIGN_MASK) & ~MALLOC_ALIGN_MASK))
 
-#define request2size(req)                                  \
-    (((req) + SIZE_SZ + MALLOC_ALIGN_MASK < MINSIZE)  ?    \        
-    MINSIZE :                                              \       
+#define request2size(req)                                   \
+    (((req) + SIZE_SZ + MALLOC_ALIGN_MASK < MINSIZE)  ?     \
+    MINSIZE :                                               \
     ((req) + SIZE_SZ + MALLOC_ALIGN_MASK) & ~MALLOC_ALIGN_MASK)
 
 void malloc_mem_control_block()
 {
-    printf("sizeof(size_t) = %d\n", sizeof(size_t)); //8字节
-    printf("sizeof(struct malloc_block) = %d\n", sizeof(struct malloc_block)); //16字节
+    printf("sizeof(size_t) = %zu\n", sizeof(size_t)); //8字节
+    printf("sizeof(struct malloc_block) = %zu\n", sizeof(struct malloc_block)); //16字节
 
     //最起始的堆内存地址
     void* curBrk = sbrk(0);
-    printf("curBrk = %#x\n", curBrk);
+    printf("curBrk = %p\n", curBrk);
 
     printf("-----------------------------\n");
     void* ptr1 = malloc(20);
     memset(ptr1, 0x01, 20);
-    printf("ptr1 = %#x\n", ptr1);
+    printf("ptr1 = %p\n", ptr1);
     printf("ptr1 malloc_usable_size = %zu\n", malloc_usable_size(ptr1));
     cur_chunk_data(ptr1);
     printf("-----------------------------\n");
@@ -112,14 +112,14 @@ void malloc_mem_control_block()
     //--------------------
     void* ptr2 = malloc(112);
     memset(ptr2, 0x02, 112);
-    printf("ptr2 = %#x\n", ptr2);
+    printf("ptr2 = %p\n", ptr2);
     printf("ptr2 malloc_usable_size = %zu\n", malloc_usable_size(ptr2));
     cur_chunk_data(ptr2);
     printAddrData1Byte(ptr1, ptr2);
     printf("-----------------------------\n");
 
     void* ptr3 = malloc(121);
-    printf("ptr3 = %#x\n", ptr3);
+    printf("ptr3 = %p\n", ptr3);
     memset(ptr3, 0x03, 121);
     printf("ptr3 malloc_usable_size = %zu\n", malloc_usable_size(ptr3));
     cur_chunk_data(ptr3);
@@ -127,14 +127,14 @@ void malloc_mem_control_block()
 
     //貌似超过130KB还是在堆中生成,而不是在mmap内存映射文件;但是试了200KB就是内存地址不一样了.
     void* ptr4 = malloc(200 * 1024);
-    printf("ptr4 = %#x\n", ptr4);
+    printf("ptr4 = %p\n", ptr4);
     memset(ptr4, 0x04, 200 * 1024);
     cur_chunk_data(ptr4);
     printf("-----------------------------\n");
 
     // 第一个curBrk和最后的curBrk相差0x21000, 33 * 4KB,则malloc申请内存时,系统会一次行映射33个内存页
     curBrk = sbrk(0);
-    printf("curBrk = %#x\n", curBrk);
+    printf("curBrk = %p\n", curBrk);
 
     free(ptr1);
     free(ptr2);
@@ -152,7 +152,7 @@ void malloc_mem_control_block()
 
 void printAddrData1Byte(void* startAddr, void* endAddr)
 {
-    printf("printf startAddr = %#x to endAddr = %#x data\n", startAddr, endAddr);
+    printf("printf startAddr = %p to endAddr = %p data\n", startAddr, endAddr);
     char* pMove = (char*)startAddr;
     int i = 0;
     while(pMove < endAddr)
@@ -169,13 +169,13 @@ void printMCB(void* ptr)
 {
     // struct mem_control_block* mcb;
     // mcb = (struct mem_control_block*)((char*)ptr - sizeof(struct mem_control_block));
-    // printf("ptr = %#x; mcb->is_available = %d; mcb->size = %d\n", ptr, mcb->is_available, mcb->size);
+    // printf("ptr = %p; mcb->is_available = %d; mcb->size = %d\n", ptr, mcb->is_available, mcb->size);
 }
 
 void cur_chunk_data(void* mem)
 {
     mchunkptr pchunk = mem2chunk(mem);
-    printf("mem = %#x, pchunk = %#x,size before chunksize = %d, size = %zu,, pre_size = %d\n", mem, pchunk, pchunk->size, chunksize(pchunk), pchunk->pre_size);
+    printf("mem = %p, pchunk = %p,size before chunksize = %zu, size = %zu,, pre_size = %zu\n", mem, pchunk, pchunk->size, chunksize(pchunk), pchunk->pre_size);
 }
 
 void pre_chunk_data(void* mem)
@@ -184,7 +184,7 @@ void pre_chunk_data(void* mem)
     //If prev_inuse is set for any given chunk, then you CANNOT determine the size of the previous chunk, and might even get a memory addressing fault when trying to do so.
     //那官方的malloc_block结构的各个字段什么时候发挥作用呢???(在free之后空闲链表中发挥作用)
     mchunkptr prechunk = pre_chunk(pchunk);
-    printf("prechunk = %#x, prechunk->size = %zu\n", prechunk, chunksize(prechunk));
+    printf("prechunk = %p, prechunk->size = %zu\n", prechunk, chunksize(prechunk));
 }
 
 void next_chunk_data(void* mem)
