@@ -9,17 +9,18 @@ public:
     smartpointor(T *_p = nullptr): _data(_p){
         cout << "smartpointor(T *_p = nullptr)\n";
         if(_p)
-            _count = 1;
+            _count = new size_t(1);
         else
-            _count = 0;
+            _count = new size_t(0);
     }
 
     ~smartpointor() {
         cout << "~smartpointor()\n";
-        _count--;
-        if(_count <= 0){
+        (*_count)--;
+        if((*_count) <= 0){
             delete _data;
-            cout << "delete _data\n";
+            delete _count;
+            cout << "delete _data and _count\n";
         }
     }
 
@@ -28,7 +29,7 @@ public:
         if(this != &sptr) {
             this->_data = sptr._data;
             this->_count = sptr._count;
-            (this->_count)++;
+            (*(this->_count))++;
         }    
     }
 
@@ -38,14 +39,16 @@ public:
             return *this;
 
         if(this->_data) {
-            this->_count--;
-            if(this->_count == 0)
+            (*(this->_count))--;
+            if((*(this->_count)) == 0) {
                 delete _data;
+                delete _count;
+            }
         }
 
         this->_data = sptr._data;
         this->_count = sptr._count;
-        this->_count++;
+        (*(this->_count))++;
         return *this;
     }
 
@@ -59,16 +62,16 @@ public:
         return this->_data;
     }
 
-    T *get() const{
+    T* get() const{
         cout << "T *get() const\n";
         return _data;
     }
 
     size_t getCount() const {
         cout << "size_t getCount() const\n";
-        return _count;
+        return *_count;
     }
 private:
-    T     *_data;
-    size_t _count;
+    T      *_data;
+    size_t *_count;
 };
