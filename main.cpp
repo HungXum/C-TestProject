@@ -16,4 +16,8 @@ void smartpointorTest() {
     smartpointor<int> sptr1;
     sptr1  = sptr;
     smartpointor<int> sptr2(sptr);
+
+    smartpointor<int> sptrAdd = sptr1 + sptr2;
+    cout << "sptr1 + sptr2 = " << *sptrAdd << endl;
+    cout << *sptr << " " << sptr->getCount() << endl;
 }
