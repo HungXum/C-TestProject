@@ -39,7 +39,7 @@ void malloc_memory()
 
     free(p);
     free(p1);
-    // free(p2);
+    free(p2);
 }
 
 typedef size_t SIZE_SZ;
