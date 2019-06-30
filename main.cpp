@@ -4,14 +4,12 @@
 
 // void smartpointorTest();
 void stringTest();
-int main()
-{
+int main() {
     // malloc_memory();
     // access_free_data();
     // malloc_mem_control_block();
     // smartpointorTest();
     stringTest();
-    
     return 0;
 }
 
@@ -29,29 +27,29 @@ int main()
 //     cout << *sptr << " " << sptr->getCount() << endl;
 // }
 
-void stringTest(){
+void stringTest() {
     String str("hello world");
     String str1;
     str1 = str;
     String str2(str);
 
-    //打印:先打印出data(),再打印length();输出栈???
-    //char *data()
-    //size_t length()
-    cout << "length = " << str1.length() << ", date = " << str1.data() << endl;
-    cout << "str[" << 1 << "] = " << str[1] << endl;
+    // 打印:先打印出data(),再打印length();输出栈???
+    // char *data()
+    // size_t length()
+    std::cout << "length = " << str1.length() << ", date = " << str1.data() << std::endl;
+    std::cout << "str[" << 1 << "] = " << str[1] << std::endl;
 
     String strAdd = str1 + str2;
     String strAdd1 = str1 + " and univers";
-    cout << "strAdd = " << strAdd << "; strAdd1 = " << strAdd1 << endl;
+    std::cout << "strAdd = " << strAdd << "; strAdd1 = " << strAdd1 << std::endl;
 
-    cout << "input" << "strAdd" << endl;
-    cin >> strAdd;
-    cout << "strAdd = " << strAdd << endl;
+    std::cout << "input" << "strAdd" << std::endl;
+    std::cin >> strAdd;
+    std::cout << "strAdd = " << strAdd << std::endl;
 }
 
 void memcheckTest() {
-    int *ptr = (int*)malloc(sizeof(int) * 4);
+    int *ptr = reinterpret_cast<int*>(malloc(sizeof(int) * 4));
     // ptr[4] = 1;
     // cout << ptr[5] << endl;
     free(ptr);
