@@ -1,6 +1,6 @@
-// #include "malloc_free/memory_manager.h"
-// #include "custom_class/smartpointor.h"
-#include "custom_class/String.h"
+// #include "header/malloc_free/memory_manager.h"
+// #include "header/custom_class/my_custom_smartpointor.h"
+#include "header/custom_class/my_custom_string.h"
 
 // void smartpointorTest();
 void stringTest();
