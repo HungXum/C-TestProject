@@ -1,6 +1,7 @@
 // #include "header/malloc_free/memory_manager.h"
 // #include "header/custom_class/my_custom_smartpointor.h"
 #include "header/custom_class/my_custom_string.h"
+#include "header/test/signal_test.h"
 
 // void smartpointorTest();
 void stringTest();
@@ -9,7 +10,10 @@ int main() {
     // access_free_data();
     // malloc_mem_control_block();
     // smartpointorTest();
-    stringTest();
+    // stringTest();
+    // 
+    SignalTest();
+
     return 0;
 }
 
