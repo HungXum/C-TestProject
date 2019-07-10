@@ -2,6 +2,8 @@
 // #include "header/custom_class/my_custom_smartpointor.h"
 #include "header/custom_class/my_custom_string.h"
 #include "header/test/signal_test.h"
+#include "header/test/atexit_test.h"
+#include "header/test/stack_frame_test.h"
 
 // void smartpointorTest();
 void stringTest();
@@ -12,7 +14,9 @@ int main() {
     // smartpointorTest();
     // stringTest();
     // 
-    SignalTest();
+    // SignalTest();
+    // AtexitTest();
+    StackLayoutTest();
 
     return 0;
 }

@@ -23,6 +23,11 @@ void SignaleHandler(int signum) {
         {
             ++level;
             printf("level = %d\n", level);
+            break;
+        }
+        case SIGSEGV:
+        {
+            printf("segment fault!\n");
         }
             break;
     }
